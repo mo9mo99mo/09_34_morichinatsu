@@ -25,6 +25,7 @@ if (isset($_SESSION['session_id'])) {
 $pdo = connect_to_db();
 
 // データ取得SQL作成
+//最新記事5件取得
 // $sql = "SELECT user.id, user.username, news.id, news.title, news.category, news.url, news.created_at, news.comment, news.use_id, like.user_id, like.news_id, comment.news_id, comment.action_comment, comment.username, comment.rating, comment.created_at FROM news_table AS news JOIN users_table AS user ON news.use_id = user.id RIGHT JOIN like_table AS like ON news.id = like.news_id RIGHT JOIN comments_table AS comment ON news.id = comment.news_id WHERE news.id";
 $sql = "SELECT * FROM `kqfm_news_table` as news LEFT OUTER JOIN kqfm_user_table AS user ON news.news_id = user.user_id LEFT OUTER JOIN kqfm_like_table AS likes ON news.news_id = likes.like_id LEFT OUTER JOIN kqfm_favo_table AS favo on news.news_id = favo.favo_news_id ORDER BY news_created_at DESC LIMIT 5";
 // SQL準備&実行
@@ -43,9 +44,8 @@ if ($status == false) {
     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);  // データの出力用変数（初期値は空文字）を設定
 }
 
-// $sql = "SELECT * FROM `kqfm_news_table` as news LEFT OUTER JOIN kqfm_user_table AS user ON news.news_id = user.user_id LEFT OUTER JOIN kqfm_like_table AS likes ON news.news_id = likes.like_id LEFT OUTER JOIN kqfm_favo_table AS favo on news.news_id = favo.favo_news_id ORDER BY news_created_at COUNT DESC LIMIT 5";
-// $sql = "SELECT like_news_id, COUNT(like_id) AS cnt FROM kqfm_like_table GROUP BY like_news_id";
-$sql = "SELECT * FROM kqfm_news_table AS news LEFT OUTER JOIN kqfm_user_table AS user ON news.news_id = user.user_id LEFT OUTER JOIN ( SELECT like_news_id, COUNT(like_id) AS cnt FROM kqfm_like_table GROUP BY like_news_id) AS likes ON news.news_id = likes.like_news_id";
+//いいね！数が多い記事一覧
+$sql = "SELECT * FROM kqfm_news_table AS news LEFT OUTER JOIN kqfm_user_table AS user ON news.news_id = user.user_id LEFT OUTER JOIN ( SELECT like_news_id, COUNT(like_id) AS cnt FROM kqfm_like_table GROUP BY like_news_id) AS likes ON news.news_id = likes.like_news_id ORDER BY cnt DESC LIMIT 5";
 // SQL準備&実行
 $stmt = $pdo->prepare($sql);
 $news_l_cnt = $stmt->execute();
